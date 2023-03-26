@@ -4,16 +4,27 @@
     <!--Content Descriptions-->
     <string name="helpButtonDescription">Help</string>
 
-    <!--Help Page-->
-    <string name="helpPageText">
+    <!--First time launch page (similar to help page)-->
+    <string name="launchPageText">
         Welcome to Vision Walk.&#xA;
         This app is intended to help visually impaired users cross the street at traffic light junctions.&#xA;
         While walking, hold your phone in a position that will allow the camera to scan your surroundings for crosswalk signals.
-        Once detected, an this app will tell you whether or not it is safe to cross.&#xA;
+        Once detected, this app will tell you whether or not it is safe to cross.&#xA;
+        This decision is made using an image classification machine learning model with a [insert number here] percent accuracy.&#xA;
+        This page will no longer be launched upon opening the app. If at anytime you need to revisit this page, press the help button located in the upper left hand corner of the screen.&#xA;
+        When you are ready to begin, click the continue button at the bottom of the screen and allow camera and storage access.&#xA;
+        None of your images will be stored. They will only be used to determine whether or not it is safe to cross the road.&#xA;
+        If you have any questions, please contact us at [insert email here]. Please be safe, and happy walking!
+    </string>
+    <!--Help Page-->
+    <string name="helpPageText">
+        This app is intended to help visually impaired users cross the street at traffic light junctions.&#xA;
+        While walking, hold your phone in a position that will allow the camera to scan your surroundings for crosswalk signals.
+        Once detected, this app will tell you whether or not it is safe to cross.&#xA;
         This decision is made using an image classification machine learning model with a [insert number here] percent accuracy.&#xA;
         If at anytime you need to revisit this page, press the help button located in the upper left hand corner of the screen.&#xA;
-        When you are ready to move on, click the continue button at the bottom of the screen.&#xA;
-        Please be safe, and happy walking!
+        If you have any questions, please contact us at [insert email here].&#xA;
+        The button to close this screen is located at the bottom. Please be safe, and happy walking!
     </string>
     <string name="continueButtonText">Continue</string>
 
