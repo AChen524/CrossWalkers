@@ -12,7 +12,10 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -33,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
 
     PreviewView previewView;
-    Button bTakePicture, bRecording;
+    Button bTakePicture;
     private ImageCapture imageCapture;
 
     @Override
@@ -41,25 +44,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         bTakePicture = findViewById(R.id.bTakePicture);
-        bRecording = findViewById(R.id.bRecording);
         previewView = findViewById(R.id.previewView);
 
         bTakePicture.setOnClickListener(this);
-        bRecording.setOnClickListener(this);
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 startCameraX(cameraProvider);
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
         }, getExecutor());
+
     }
+
+
 
     private Executor getExecutor(){
         return ContextCompat.getMainExecutor(this);
@@ -85,13 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void onClick(View v){
-       switch(v.getId()){
-           case R.id.bTakePicture:
-               capturePhoto();
-               break;
-           case R.id.bRecording:
-               break;
-       }
+        capturePhoto();
     }
 
     private void capturePhoto(){
@@ -126,7 +123,3 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(intent);
     }
 }
-
-// q's for Mrs. Taricco
-// why need kotlin? (gradle build)
-//

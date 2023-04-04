@@ -47,9 +47,6 @@ dependencies {
         // If you want to additionally use the CameraX View class
         implementation "androidx.camera:camera-view:${camerax_version}"
 
-        // If you want to additionally add CameraX ML Kit Vision Integration
-       // implementation "androidx.camera:camera-mlkit-vision:${camerax_version}"
-
     constraints {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
             because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
@@ -58,5 +55,4 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
-
 }
