@@ -28,5 +28,14 @@
     </string>
     <string name="continueButtonText">Continue</string>
 
+    <!--Permission Denied Page-->
+    <string name="permissionDeniedText">
+        Because our app\'s core functionality depends on the camera, camera permission is crucial for both your safety and our app function. This camera will only be active
+        while the app is open, and none of the images taken will be stored. Your privacy is our priority. \n
+
+        To enable camera access, go to settings, apps, crosswalkers, permissions and allow camera permissions. After you have done that, click the continue button and the app will resume function
+        Thank you.
+    </string>
+
 
 </resources>
