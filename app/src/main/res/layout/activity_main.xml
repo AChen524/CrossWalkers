@@ -5,6 +5,7 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     tools:context=".MainActivity">
 
     <ImageButton
@@ -14,7 +15,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
-        android:background="#595959"
+        android:background="#FFEB3B"
         android:contentDescription="@string/helpButtonDescription"
         android:onClick="openHelpPage"
         app:layout_constraintEnd_toEndOf="parent"
