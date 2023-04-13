@@ -3,8 +3,10 @@ package com.example.crosswalkers;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -16,39 +18,44 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.Log;
+import android.util.Size;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.crosswalkers.ml.Model;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.label.Category;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements ImageAnalysis.Analyzer {
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
-
-    PreviewView previewView;
-    Button bTakePicture;
-    private ImageCapture imageCapture;
+    private PreviewView previewView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        bTakePicture = findViewById(R.id.bTakePicture);
         previewView = findViewById(R.id.previewView);
-
-        bTakePicture.setOnClickListener(this);
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -61,8 +68,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }, getExecutor());
 
     }
-
-
 
     private Executor getExecutor(){
         return ContextCompat.getMainExecutor(this);
@@ -80,44 +85,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-        //Image capture use case
-        imageCapture = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build();
+        //Image analysis use case
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
 
-        cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageCapture);
+        imageAnalysis.setAnalyzer(getExecutor(), this);
+
+        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
     }
+
     @Override
-    public void onClick(View v){
-        capturePhoto();
+    public void analyze(@NonNull ImageProxy image) {
+        Log.d("TAG", "analyze: gpt the frame at: " + image.getImageInfo().getTimestamp());
+
+        final Bitmap bitmap = previewView.getBitmap();
+
+        image.close();
+
+        if (bitmap == null)
+            return;
+
+        classifyImage(bitmap);
     }
 
-    private void capturePhoto(){
+    private void classifyImage(Bitmap bitmap){
+        try {
+            Model model = Model.newInstance(getApplicationContext());
 
+            // Creates inputs for reference.
+            TensorImage image = TensorImage.fromBitmap(bitmap);
 
-        long timestamp = System.currentTimeMillis();
+            // Runs model inference and gets result.
+            Model.Outputs outputs = model.process(image);
 
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, timestamp);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+            List<Category> probability = outputs.getProbabilityAsCategoryList();
+            Log.d("ML","category" + probability.get(0) + " " + probability.get(1));
 
+            //if (probability.get(1).getScore()>0.9)
 
-        imageCapture.takePicture(
-                new ImageCapture.OutputFileOptions.Builder(getContentResolver(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues).build(),
-                getExecutor(),
-                new ImageCapture.OnImageSavedCallback(){
-                    @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults){
-                        Toast.makeText(MainActivity.this, "Photo has been saved successfully.",Toast.LENGTH_SHORT).show();
-                    }
+            /** QUESTIONS
+             * - Don't want it to constantly return hand or walk unless something is detected. Only return if greater than 0.8?
+             * - How to handle multiple outputs if every frame is being checked?
+             * - Should every frame be checked?
+             *      - will drain battery?
+             *      - nonblocking or blocking
+             * - how to display the output
+             *      - textbox --> will be read by talkback?
+             *      - toast --> will be read by talkback?
+             * - should confidence level be returned as well
+             */
 
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception){
-                        Toast.makeText(MainActivity.this, "Error saving photo: " + exception.getMessage(),Toast.LENGTH_SHORT).show();
+                // Releases model resources if no longer used.
+            model.close();
 
-                    }
-                }
-        );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
     public void openHelpPage(View v){
         Intent intent = new Intent(this, HelpActivity.class);
         startActivity(intent);
