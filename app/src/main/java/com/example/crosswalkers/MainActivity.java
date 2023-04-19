@@ -4,31 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
 
-import android.content.ContentValues;
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.util.Size;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.crosswalkers.ml.Model;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -36,12 +24,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.label.Category;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -49,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private PreviewView previewView;
+    private TextView confidenceText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
         setContentView(R.layout.activity_main);
 
         previewView = findViewById(R.id.previewView);
-
+        confidenceText = findViewById(R.id.confidenceText);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
@@ -100,7 +85,11 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
         Log.d("TAG", "analyze: gpt the frame at: " + image.getImageInfo().getTimestamp());
 
         final Bitmap bitmap = previewView.getBitmap();
-
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         image.close();
 
         if (bitmap == null)
@@ -109,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
         classifyImage(bitmap);
     }
 
+    @SuppressLint("SetTextI18n")
     private void classifyImage(Bitmap bitmap){
         try {
             Model model = Model.newInstance(getApplicationContext());
@@ -120,21 +110,16 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
             Model.Outputs outputs = model.process(image);
 
             List<Category> probability = outputs.getProbabilityAsCategoryList();
-            Log.d("ML","category" + probability.get(0) + " " + probability.get(1));
+            Log.d("ML",probability.get(0) + " " + probability.get(1));
 
-            //if (probability.get(1).getScore()>0.9)
+                confidenceText.setText("Confidence Level: \n Walk " + Math.round(probability.get(1).getScore()*100) + "% " + " \n Do not walk: " + Math.round(probability.get(0).getScore()*100) + "%");
 
-            /** QUESTIONS
-             * - Don't want it to constantly return hand or walk unless something is detected. Only return if greater than 0.8?
-             * - How to handle multiple outputs if every frame is being checked?
-             * - Should every frame be checked?
-             *      - will drain battery?
-             *      - nonblocking or blocking
-             * - how to display the output
-             *      - textbox --> will be read by talkback?
-             *      - toast --> will be read by talkback?
-             * - should confidence level be returned as well
-             */
+               // if (probability.get(0).getScore()>0.75){
+               //     confidenceText.setText("Confidence Level: Do not walk " + Math.round(probability.get(0).getScore()*100) + "%");
+              //  }
+               // if (probability.get(1).getScore()>0.90){
+              //      confidenceText.setText("Confidence Level: Walk " + Math.round(probability.get(1).getScore()*100) + "%");
+              //  }
 
                 // Releases model resources if no longer used.
             model.close();

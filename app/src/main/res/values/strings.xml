@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CrossWalkers</string>
+    <string name="app_name">LaunchGuide</string>
 
     <!--Content Descriptions-->
     <string name="helpButtonDescription">Help</string>
@@ -36,6 +36,12 @@
         To enable camera access, go to settings, apps, crosswalkers, permissions and allow camera permissions. After you have done that, click the continue button and the app will resume function
         Thank you.
     </string>
+
+    <!--Permission Denied Page-->
+    <string name="confidenceLevel">
+        Confidence Level:
+    </string>
+
 
 
 </resources>
