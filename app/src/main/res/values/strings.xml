@@ -39,7 +39,7 @@
 
     <!--Permission Denied Page-->
     <string name="confidenceLevel">
-        Confidence Level:
+        Scanning… No crosswalks detected.
     </string>
 
 

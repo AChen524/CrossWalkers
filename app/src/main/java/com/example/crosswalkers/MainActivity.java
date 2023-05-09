@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,11 +36,16 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
     private PreviewView previewView;
     private TextView confidenceText;
 
+    private MediaPlayer ding;
+    private MediaPlayer wait;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ding = MediaPlayer.create(MainActivity.this, R.raw.ding);
+        wait = MediaPlayer.create(MainActivity.this, R.raw.wait);
         previewView = findViewById(R.id.previewView);
         confidenceText = findViewById(R.id.confidenceText);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
@@ -85,11 +91,6 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
         Log.d("TAG", "analyze: gpt the frame at: " + image.getImageInfo().getTimestamp());
 
         final Bitmap bitmap = previewView.getBitmap();
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         image.close();
 
         if (bitmap == null)
@@ -112,14 +113,19 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
             List<Category> probability = outputs.getProbabilityAsCategoryList();
             Log.d("ML",probability.get(0) + " " + probability.get(1));
 
-                confidenceText.setText("Confidence Level: \n Walk " + Math.round(probability.get(1).getScore()*100) + "% " + " \n Do not walk: " + Math.round(probability.get(0).getScore()*100) + "%");
+              //confidenceText.setText("Walk: " + Math.round(probability.get(1).getScore()*100) + "%" + " Don't walk: " + Math.round(probability.get(0).getScore()*100) + "%");
 
-               // if (probability.get(0).getScore()>0.75){
-               //     confidenceText.setText("Confidence Level: Do not walk " + Math.round(probability.get(0).getScore()*100) + "%");
-              //  }
-               // if (probability.get(1).getScore()>0.90){
-              //      confidenceText.setText("Confidence Level: Walk " + Math.round(probability.get(1).getScore()*100) + "%");
-              //  }
+                if (probability.get(0).getScore()>0.75){
+                   confidenceText.setText("Crosswalk detected: do not cross " + Math.round(probability.get(0).getScore()*100) + "%");
+                   wait.start();
+                }
+                else if (probability.get(1).getScore()>0.90){
+                    confidenceText.setText("Crosswalk detected: it is safe to cross " + Math.round(probability.get(1).getScore()*100) + "%");
+                    ding.start();
+                }
+                else {
+                    confidenceText.setText("Scanning… No crosswalks detected.");
+                }
 
                 // Releases model resources if no longer used.
             model.close();
