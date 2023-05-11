@@ -9,21 +9,21 @@
         Welcome to Vision Walk. \n
         This app is intended to help visually impaired users cross the street at traffic light junctions. \n
         While walking, hold your phone in a position that will allow the camera to scan your surroundings for crosswalk signals.
-        Once detected, this app will tell you whether or not it is safe to cross. \n
-        This decision is made using an image classification machine learning model with a [insert number here] percent accuracy. \n
+        Once detected, this app will tell you whether or not it is safe to cross, with a "ding" sound indicating walk, and a "wait" sound indicating don\'t walk.\n
+        This decision is made using an image classification machine learning model with a 96.36% percent accuracy. \n
         This page will no longer be launched upon opening the app. If at anytime you need to revisit this page, press the help button located in the upper left hand corner of the screen.&#xA;
         When you are ready to begin, click the continue button at the bottom of the screen and allow camera and storage access. \n
         None of your images will be stored. They will only be used to determine whether or not it is safe to cross the road. \n
-        If you have any questions, please contact us at [insert email here]. Please be safe, and happy walking!
+        If you have any questions, please contact Jack Peacock at peacock@mindspring.com. Please be safe, and happy walking!
     </string>
     <!--Help Page-->
     <string name="helpPageText">
         This app is intended to help visually impaired users cross the street at traffic light junctions. \n
         While walking, hold your phone in a position that will allow the camera to scan your surroundings for crosswalk signals.
-        Once detected, this app will tell you whether or not it is safe to cross. \n
-        This decision is made using an image classification machine learning model with a [insert number here] percent accuracy. \n
+        Once detected, this app will tell you whether or not it is safe to cross, with a "ding" sound indicating walk, and a "wait" sound indicating don\'t walk. \n
+        This decision is made using an image classification machine learning model with a 96.36% percent accuracy. \n
         If at anytime you need to revisit this page, press the help button located in the upper left hand corner of the screen. \n
-        If you have any questions, please contact us at [insert email here]. \n
+        If you have any questions, please contact us at Jack Peacock at peacock@mindspring.com. \n
         The button to close this screen is located at the bottom. Please be safe, and happy walking!
     </string>
     <string name="continueButtonText">Continue</string>
@@ -33,7 +33,7 @@
         Because our app\'s core functionality depends on the camera, camera permission is crucial for both your safety and our app function. This camera will only be active
         while the app is open, and none of the images taken will be stored. Your privacy is our priority. \n
 
-        To enable camera access, go to settings, apps, crosswalkers, permissions and allow camera permissions. After you have done that, click the continue button and the app will resume function
+        To enable camera access, go to Settings, Apps, LaunchGuide, Permissions and allow camera permissions. After you have done that, click the continue button and the app will resume function
         Thank you.
     </string>
 
