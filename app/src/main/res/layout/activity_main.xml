@@ -43,6 +43,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         android:text="@string/confidenceLevel"
+        android:textAlignment="center"
         app:autoSizeMaxTextSize="40sp"
         app:autoSizeMinTextSize="12sp"
         app:autoSizeTextType="uniform"

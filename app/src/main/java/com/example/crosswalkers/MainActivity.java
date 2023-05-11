@@ -2,11 +2,17 @@ package com.example.crosswalkers;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.CameraController;
+import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
@@ -44,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ding = MediaPlayer.create(MainActivity.this, R.raw.ding);
+
+        ding = MediaPlayer.create(MainActivity.this, R.raw.walk);
         wait = MediaPlayer.create(MainActivity.this, R.raw.wait);
         previewView = findViewById(R.id.previewView);
         confidenceText = findViewById(R.id.confidenceText);
@@ -81,9 +88,14 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
-        imageAnalysis.setAnalyzer(getExecutor(), this);
+        //Camera controller
+        LifecycleCameraController controller = new LifecycleCameraController(this);
+        controller.unbind();
+        controller.bindToLifecycle(this);
+        previewView.setController(controller);
 
-        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+        // Camera control features
+        controller.setLinearZoom(0.8F);
     }
 
     @Override
@@ -116,11 +128,11 @@ public class MainActivity extends AppCompatActivity implements ImageAnalysis.Ana
               //confidenceText.setText("Walk: " + Math.round(probability.get(1).getScore()*100) + "%" + " Don't walk: " + Math.round(probability.get(0).getScore()*100) + "%");
 
                 if (probability.get(0).getScore()>0.75){
-                   confidenceText.setText("Crosswalk detected: do not cross " + Math.round(probability.get(0).getScore()*100) + "%");
+                   confidenceText.setText("Crosswalk detected: \n do not cross " + Math.round(probability.get(0).getScore()*100) + "%");
                    wait.start();
                 }
                 else if (probability.get(1).getScore()>0.90){
-                    confidenceText.setText("Crosswalk detected: it is safe to cross " + Math.round(probability.get(1).getScore()*100) + "%");
+                    confidenceText.setText("Crosswalk detected: \n it is safe to cross " + Math.round(probability.get(1).getScore()*100) + "%");
                     ding.start();
                 }
                 else {
